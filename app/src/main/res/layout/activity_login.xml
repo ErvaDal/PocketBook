@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="32dp"
+    android:background="@color/screen_background">
+
+    <FrameLayout
+        android:id="@+id/fl_theme_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_theme_toggle"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:contentDescription="Tema Değiştirici"
+            android:src="@drawable/ic_moon"
+            app:tint="@color/icon_tint" />
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/iv_login_logo"
+        android:layout_width="261dp"
+        android:layout_height="187dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/beyaz_logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fl_theme_container" />
+
+    <TextView
+        android:id="@+id/tv_login_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:letterSpacing="0.02"
+        android:text="Papirus dünyasına giriş yap"
+        android:textColor="@color/hint_color"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.534"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_login_logo" />
+
+    <TextView
+        android:id="@+id/tv_Label_Email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Email"
+        android:textColor="@color/text_color_primary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_login_subtitle" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_Email"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:hintEnabled="false"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="0dp"
+        app:startIconDrawable="@drawable/ic_email"
+        app:startIconTint="@color/icon_tint"
+        app:layout_constraintTop_toBottomOf="@id/tv_Label_Email">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_Email"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@drawable/edittext_background"
+            android:hint="ornek@papirus.com"
+            android:textColorHint="@color/hint_color"
+            android:textColor="@color/text_color_primary"
+            android:inputType="textEmailAddress"
+            android:paddingStart="48dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/tv_Label_PasswordHash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Şifre"
+        android:textColor="@color/text_color_primary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/til_Email" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_PasswordHash"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:hintEnabled="false"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="0dp"
+        app:passwordToggleEnabled="true"
+        app:passwordToggleTint="@color/icon_tint"
+        app:startIconDrawable="@drawable/ic_lock"
+        app:startIconTint="@color/icon_tint"
+        app:layout_constraintTop_toBottomOf="@id/tv_Label_PasswordHash">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_PasswordHash"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@drawable/edittext_background"
+            android:hint="••••••••"
+            android:textColorHint="@color/hint_color"
+            android:textColor="@color/text_color_primary"
+            android:inputType="textPassword"
+            android:paddingStart="48dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/tv_login_forgot_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Şifremi Unuttum"
+        android:textColor="@color/primary_color"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@+id/til_PasswordHash"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_login_submit"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="@color/primary_color"
+        android:text="Giriş Yap"
+        android:textAllCaps="false"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.05"
+        app:cornerRadius="30dp"
+        app:layout_constraintTop_toBottomOf="@id/tv_login_forgot_password" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Üye değil misin? "
+            android:textColor="@color/hint_color" />
+
+        <TextView
+            android:id="@+id/btn_login_register_redirect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Şimdi Kayıt Ol"
+            android:textColor="@color/primary_color"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
