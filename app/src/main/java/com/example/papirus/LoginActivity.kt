@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.button.MaterialButton
 
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,7 +18,7 @@ class LoginActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_login)
 
-        // kanar boşluğu için
+        // Kenar boşluklarının ayarlanması
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             val density = resources.displayMetrics.density
@@ -32,9 +33,8 @@ class LoginActivity : AppCompatActivity() {
             insets
         }
 
-        // tema değiştirme
+        // Gece/Gündüz Teması Yönetimi
         val ivThemeToggle = findViewById<ImageView>(R.id.iv_theme_toggle)
-
         val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         val isDarkMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES
 
@@ -53,15 +53,22 @@ class LoginActivity : AppCompatActivity() {
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         }
 
+        // Giriş Yap Butonu (Doğrudan Ana Ekranı Açar)
+        val btnLoginSubmit = findViewById<MaterialButton>(R.id.btn_login_submit)
+        btnLoginSubmit.setOnClickListener {
+            val intent = Intent(this@LoginActivity, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
 
+        // Kayıt Ol Sayfasına Yönlendirme
         val btnRegisterRedirect = findViewById<TextView>(R.id.btn_login_register_redirect)
-
         btnRegisterRedirect.setOnClickListener {
-            // Yeni bir aktivite başlatma niyeti (Intent) oluşturulur
             val intent = Intent(this@LoginActivity, RegisterActivity::class.java)
             startActivity(intent)
         }
 
+        // Şifremi Unuttum Sayfasına Yönlendirme
         val tvForgotPassword = findViewById<TextView>(R.id.tv_login_forgot_password)
         tvForgotPassword.setOnClickListener {
             val intent = Intent(this@LoginActivity, ForgotPasswordActivity::class.java)
