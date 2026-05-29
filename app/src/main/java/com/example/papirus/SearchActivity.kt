@@ -187,7 +187,15 @@ class SearchActivity : AppCompatActivity() {
                     finish()
                     true
                 }
-                R.id.nav_profile -> true
+                R.id.nav_profile -> {
+                    val intent = Intent(this, ProfileActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(intent)
+                    @Suppress("DEPRECATION")
+                    overridePendingTransition(0, 0)
+                    finish()
+                    true
+                }
                 else -> false
             }
         }

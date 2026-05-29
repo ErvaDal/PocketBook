@@ -47,6 +47,39 @@
             android:name=".LibraryActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".FeedActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AddPostActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
+
+        <activity android:name=".CreateBookActivity"
+            android:exported="false" />
+
+        <activity android:name=".WriteChapterActivity"
+            android:exported="false" />
+
+        <activity android:name=".ManageBookActivity"
+            android:exported="false" />
+
+        <activity android:name=".BookDetailsActivity"
+            android:exported="false" />
+
+        <activity android:name=".ReadChapterActivity"
+            android:exported="false" />
+
+        <activity android:name=".AuthorProfileActivity"
+            android:exported="false" />
+
+        <activity android:name=".NotificationActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -32,6 +31,11 @@ class MainActivity : AppCompatActivity() {
         setupThemeToggle()
         setupRecyclerViews()
         setupBottomNavigation()
+
+        // MainActivity.kt -> onCreate içine
+        findViewById<ImageView>(R.id.iv_notifications).setOnClickListener {
+            startActivity(Intent(this, NotificationActivity::class.java))
+        }
     }
 
     override fun onResume() {
@@ -78,43 +82,77 @@ class MainActivity : AppCompatActivity() {
             CurrentBook("5", "Siber Güvenlik", R.drawable.beyaz_logo, 80)
         )
 
+        // 1. En Çok Okunanlar -> Detay Sayfasına Yönlendirme
         findViewById<RecyclerView>(R.id.rv_most_read).adapter =
             BookAdapter(dummyBooks) { secilenKitap ->
-                Toast.makeText(this, "${secilenKitap.title} seçildi!", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, BookDetailsActivity::class.java)
+                startActivity(intent)
             }
 
+        // 2. Okumaya Devam Et -> Detay Sayfasına Yönlendirme
         findViewById<RecyclerView>(R.id.rv_continue_reading).adapter =
             CurrentBookAdapter(dummyCurrentBooks) { secilenKitap ->
-                Toast.makeText(this, "${secilenKitap.title} okumaya devam et!", Toast.LENGTH_SHORT)
-                    .show()
+                val intent = Intent(this, BookDetailsActivity::class.java)
+                startActivity(intent)
             }
 
+        // 3. Sana Özel Öneriler -> Detay Sayfasına Yönlendirme
         findViewById<RecyclerView>(R.id.rv_recommended).adapter =
             BookAdapter(dummyBooks.reversed()) { secilenKitap ->
-                Toast.makeText(this, "Öneri: ${secilenKitap.title}", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, BookDetailsActivity::class.java)
+                startActivity(intent)
             }
     }
 
+
+    //navbar kısımı
     private fun setupBottomNavigation() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> true
+
+                // Arama/Keşfet sayfası varsa buraya eklenebilir:
                 R.id.nav_search -> {
-                    startActivity(Intent(this, SearchActivity::class.java))
+                    val intent = Intent(this, SearchActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(intent)
                     @Suppress("DEPRECATION")
                     overridePendingTransition(0, 0)
+                    finish()
                     true
                 }
-                R.id.nav_feed -> true
-                R.id.nav_library -> { // 4. Simge: Kütüphaneye Geçiş
-                    startActivity(Intent(this, LibraryActivity::class.java))
+
+                R.id.nav_feed -> {
+                    val intent = Intent(this, FeedActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(intent)
                     @Suppress("DEPRECATION")
                     overridePendingTransition(0, 0)
+                    finish()
                     true
                 }
-                R.id.nav_profile -> true
+
+                R.id.nav_library -> {
+                    val intent = Intent(this, LibraryActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(intent)
+                    @Suppress("DEPRECATION")
+                    overridePendingTransition(0, 0)
+                    finish()
+                    true
+                }
+
+                R.id.nav_profile -> {
+                    val intent = Intent(this, ProfileActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(intent)
+                    @Suppress("DEPRECATION")
+                    overridePendingTransition(0, 0)
+                    finish()
+                    true
+                }
                 else -> false
             }
         }

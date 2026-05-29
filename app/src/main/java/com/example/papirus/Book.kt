@@ -4,5 +4,6 @@ package com.example.papirus
 data class Book(
     val storyId: String,
     val title: String,
-    val coverImageResId: Int
+    val coverImageResId: Int,
+    val isDraft: Boolean = false // Profilde taslakları ayırmak için eklendi (Eski kodları bozmaz)
 )

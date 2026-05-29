@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_write_chapter"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/screen_background">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_chapter_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="32dp"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="12dp"
+        android:background="@color/screen_background"
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_back_chapter"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            app:tint="@color/text_color_primary"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_chapter_more"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@android:drawable/ic_menu_more"
+            app:tint="@color/text_color_primary"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_publish_chapter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Yayınla"
+            app:cornerRadius="20dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@id/iv_chapter_more"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/tv_save_chapter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kaydet"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/hint_color"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toStartOf="@id/btn_publish_chapter"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:padding="24dp"
+        app:layout_constraintTop_toBottomOf="@id/cl_chapter_top"
+        app:layout_constraintBottom_toTopOf="@id/ll_format_toolbar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/et_chapter_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:hint="Bölüm Adı"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_color_primary"
+                android:layout_marginBottom="16dp"/>
+
+            <EditText
+                android:id="@+id/et_chapter_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:hint="Hikayeni yazmaya başla..."
+                android:textSize="16sp"
+                android:lineSpacingExtra="6dp"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:textColor="@color/text_color_primary" />
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/ll_format_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#1A888888"
+        android:padding="8dp"
+        android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@id/ll_media_toolbar">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_bold"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:text="B"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/text_color_primary"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_italic"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="I"
+            android:textStyle="italic"
+            android:textSize="18sp"
+            android:textColor="@color/text_color_primary"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_underline"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="U"
+            android:textSize="18sp"
+            android:textColor="@color/text_color_primary"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_media_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/screen_background"
+        android:elevation="16dp"
+        android:padding="16dp"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_add_image"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/ic_menu_gallery"
+            app:tint="@color/primary_color"
+            android:layout_marginEnd="32dp" />
+
+        <ImageView
+            android:id="@+id/iv_add_video"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/ic_media_play"
+            app:tint="@color/primary_color"
+            android:layout_marginEnd="32dp" />
+
+        <ImageView
+            android:id="@+id/iv_add_music"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/ic_lock_silent_mode_off"
+            app:tint="@color/primary_color" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

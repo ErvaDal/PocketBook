@@ -44,6 +44,17 @@
                     app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <ImageView
+                    android:id="@+id/iv_notifications"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_notifications"
+                    app:tint="@color/icon_tint"
+                    android:layout_marginEnd="16dp"
+                    app:layout_constraintEnd_toStartOf="@id/iv_theme_toggle_main"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <ImageView
                     android:id="@+id/iv_theme_toggle_main"
                     android:layout_width="32dp"
                     android:layout_height="32dp"

@@ -36,4 +36,5 @@
         android:maxLines="2"
         android:ellipsize="end"
         app:layout_constraintTop_toBottomOf="@id/cv_book_cover_container"
-        tools:text="Kitap Adı" /> </androidx.constraintlayout.widget.ConstraintLayout>
+        tools:text="Kitap Adı" />
+</androidx.constraintlayout.widget.ConstraintLayout>
