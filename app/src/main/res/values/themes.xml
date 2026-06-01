@@ -1,0 +1,7 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.Papirus" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/screen_background</item>
+    </style>
+
+    <style name="Theme.Papirus" parent="Base.Theme.Papirus" />
+</resources>
