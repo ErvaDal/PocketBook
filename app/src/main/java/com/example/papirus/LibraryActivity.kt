@@ -111,10 +111,10 @@ class LibraryActivity : AppCompatActivity() {
             }
 
             val libraryBooks = listOf(
-                Book("101", "Uzay Serüveni", R.drawable.beyaz_logo),
-                Book("102", "Zaman Makinesi", R.drawable.beyaz_logo),
-                Book("103", "Yapay Zeka Macerası", R.drawable.beyaz_logo),
-                Book("104", "Kara Delik", R.drawable.beyaz_logo)
+                Book("101", "Uzay Serüveni", R.drawable.beyaz_logo, false),
+                Book("102", "Zaman Makinesi", R.drawable.beyaz_logo, false),
+                Book("103", "Yapay Zeka Macerası", R.drawable.beyaz_logo, false),
+                Book("104", "Kara Delik", R.drawable.beyaz_logo, false)
             )
 
             rvBooks.layoutManager = LinearLayoutManager(this@LibraryActivity)
@@ -184,7 +184,7 @@ class LibraryActivity : AppCompatActivity() {
                     finish()
                     true
                 }
-                R.id.nav_library -> true // Zaten buradayız
+                R.id.nav_library -> true
                 else -> false
             }
         }

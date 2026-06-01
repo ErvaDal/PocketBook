@@ -1,9 +1,11 @@
 package com.example.papirus
 
-// Veritabanındaki 'Stories' tablosunun karşılığı olan model sınıfımız
+import com.google.gson.annotations.SerializedName
+
+// 🚀 TERTEMİZ VE DOĞRU MODEL:
 data class Book(
-    val storyId: String,
-    val title: String,
-    val coverImageResId: Int,
-    val isDraft: Boolean = false // Profilde taslakları ayırmak için eklendi (Eski kodları bozmaz)
+    @SerializedName("StoryId") val storyId: String, // Aradığımız anahtar tam olarak bu!
+    @SerializedName("Title") val title: String,
+    @SerializedName("CoverImageResId") val coverImageResId: Int,
+    @SerializedName("IsDraft") val isDraft: Boolean
 )

@@ -6,10 +6,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.papirus.data.DBBook
 
 class BookAdapter(
-    private var bookList: List<Book>,
-    private val onItemClick: ((Book) -> Unit)? = null // Tıklama için lambda eklendi
+    private var bookList: List<DBBook>,
+    // 🚀 KESİN ÇÖZÜM: Lambda fonksiyonunun beklediği modeli 'DBBook' olarak harfi harfine eşitledik!
+    private val onItemClick: ((DBBook) -> Unit)? = null
 ) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
 
     class BookViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -25,9 +27,11 @@ class BookAdapter(
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
         val book = bookList[position]
         holder.tvTitle.text = book.title
-        holder.ivCover.setImageResource(book.coverImageResId)
 
-        // Bütün öğeye tıklandığında ne olacağını Activity'ye gönderiyoruz
+        // 🚀 Statik veya dinamik görsel ataması projedeki gibi kalabilir
+        holder.ivCover.setImageResource(android.R.drawable.ic_menu_gallery)
+
+        // Bütün öğeye tıklandığında artık pürüzsüzce tetiklenecek!
         holder.itemView.setOnClickListener {
             onItemClick?.invoke(book)
         }
@@ -35,8 +39,8 @@ class BookAdapter(
 
     override fun getItemCount(): Int = bookList.size
 
-    // API'den yeni veri geldiğinde listeyi güncellemek için gerekli fonksiyon
-    fun updateData(newBookList: List<Book>) {
+    // Tip uyuşmazlığı uyarısı vermemesi için updateData parametresini de DBBook yapıyoruz
+    fun updateData(newBookList: List<DBBook>) {
         this.bookList = newBookList
         notifyDataSetChanged()
     }

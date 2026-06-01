@@ -8,6 +8,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
+data class AuthorChapter(
+    val title: String,
+    val isPublished: Boolean,
+    val reads: String,
+    val likes: String,
+    val comments: String
+)
 class ChapterAdapter(
     private val chapterList: List<AuthorChapter>,
     private val onChapterClick: (AuthorChapter) -> Unit,

@@ -159,7 +159,16 @@ class FeedActivity : AppCompatActivity() {
                     finish()
                     true
                 }
-                R.id.nav_profile -> true
+                R.id.nav_profile -> {
+                    val intent = Intent(this, ProfileActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    startActivity(intent)
+                    @Suppress("DEPRECATION")
+                    overridePendingTransition(0, 0)
+                    finish()
+                    true
+                }
                 else -> false
             }
         }

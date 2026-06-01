@@ -13,12 +13,21 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.textfield.TextInputEditText
 import java.util.Calendar
+import com.example.papirus.data.RegisterRequest
+import com.example.papirus.data.ApiResponse
+
+import com.google.android.material.button.MaterialButton
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import android.util.Log
 
 class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_register)
+
 
         //kenar boşlukları için
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -90,6 +99,49 @@ class RegisterActivity : AppCompatActivity() {
             val intent = Intent(this@RegisterActivity, LoginActivity::class.java)
             startActivity(intent)
             finish()
+        }
+
+        val username = findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_Username)
+        val email = findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_Email)
+        val birthDate = findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_BirthDate)
+        val password = findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_PasswordHash)
+        val passwordConfirm = findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_PasswordConfirm)
+        val btnRegister = findViewById<MaterialButton>(R.id.btn_register_submit)
+
+
+        btnRegister.setOnClickListener {
+
+            val request = RegisterRequest(
+                username.text.toString(),
+                email.text.toString(),
+                password.text.toString(),
+                birthDate.text.toString()
+            )
+
+            RetrofitClient.api.register(request).enqueue(object : Callback<ApiResponse> {
+
+                override fun onResponse(
+                    call: Call<ApiResponse>,
+                    response: Response<ApiResponse>
+                ) {
+                    if (response.isSuccessful) {
+
+                        Log.d("REGISTER", "BAŞARILI 🎉")
+
+                        startActivity(
+                            Intent(this@RegisterActivity, LoginActivity::class.java)
+                        )
+                        finish()
+
+                    } else {
+                        Log.e("REGISTER", "HATA: ${response.errorBody()?.string()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
+                    Log.e("REGISTER", "NETWORK ERROR: ${t.message}")
+                }
+            })
         }
     }
 }

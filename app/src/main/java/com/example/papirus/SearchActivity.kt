@@ -18,10 +18,16 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.papirus.data.AllBooksResponse
+import com.example.papirus.data.DBBook
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class SearchActivity : AppCompatActivity() {
 
@@ -29,12 +35,26 @@ class SearchActivity : AppCompatActivity() {
     private val PREF_NAME = "PapirusSettings"
     private val KEY_IS_DARK_MODE = "isDarkMode"
 
+    private lateinit var rvSearchResults: RecyclerView
+    private lateinit var rvSearchHistory: RecyclerView
+    private lateinit var llHistory: LinearLayout
+    private lateinit var llResults: LinearLayout
+
+    // Arama geçmişini yerel bir listede simüle edip canlı tutuyoruz
+    private val historyList = mutableListOf<DBBook>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_search)
 
         sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
+
+        // UI Elemanları Eşleştirme
+        rvSearchResults = findViewById(R.id.rv_search_results)
+        rvSearchHistory = findViewById(R.id.rv_search_history)
+        llHistory = findViewById(R.id.ll_search_history)
+        llResults = findViewById(R.id.ll_search_results)
 
         setupWindowInsets()
         setupThemeToggle()
@@ -70,129 +90,108 @@ class SearchActivity : AppCompatActivity() {
 
             if (newMode) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
+    }
 
-            @Suppress("DEPRECATION")
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+    private fun setupRecyclerViews() {
+        // RecyclerView yönlerini yatay olarak yapılandırıyoruz
+        rvSearchHistory.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        rvSearchResults.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+
+        // Geçmiş temizleme butonu
+        findViewById<TextView>(R.id.tv_clear_history).setOnClickListener {
+            historyList.clear()
+            rvSearchHistory.adapter = NewBookAdapter(historyList) {}
+            llHistory.visibility = View.GONE
+            Toast.makeText(this, "Arama geçmişi temizlendi", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun setupSearchLogic() {
         val etSearchInput = findViewById<EditText>(R.id.et_search_input)
-        val llHistory = findViewById<LinearLayout>(R.id.ll_search_history)
-        val llResults = findViewById<LinearLayout>(R.id.ll_search_results)
 
         etSearchInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (s.isNullOrEmpty()) {
-                    llHistory.visibility = View.VISIBLE
+                val query = s.toString().trim()
+
+                if (query.isEmpty()) {
+                    // Kelime silindiyse geçmiş paneline dön
+                    llHistory.visibility = if (historyList.isNotEmpty()) View.VISIBLE else View.GONE
                     llResults.visibility = View.GONE
                 } else {
                     llHistory.visibility = View.GONE
                     llResults.visibility = View.VISIBLE
+
+                    // 🚀 GERÇEK ZAMANLI VERİTABANI SORGUSU TETİKLENİYOR
+                    fetchLiveSearchResults(query)
                 }
             }
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
-    private fun setupRecyclerViews() {
-        val dummySearchHistory = mutableListOf(
-            Book("1", "Siber Güvenlik", R.drawable.beyaz_logo),
-            Book("2", "Yapay Zeka 101", R.drawable.beyaz_logo)
-        )
+    private fun fetchLiveSearchResults(query: String) {
+        RetrofitClient.api.searchStories(query).enqueue(object : Callback<AllBooksResponse> {
+            override fun onResponse(call: Call<AllBooksResponse>, response: Response<AllBooksResponse>) {
+                if (response.isSuccessful && response.body()?.success == true) {
+                    val matchingBooks = response.body()!!.books
 
-        val rvSearchHistory = findViewById<RecyclerView>(R.id.rv_search_history)
-        val historyAdapter = BookAdapter(dummySearchHistory) { secilenKitap ->
-            Toast.makeText(this, "${secilenKitap.title} aranıyor...", Toast.LENGTH_SHORT).show()
+                    // 🚀 Canlı verileri daha önce yazdığımız NewBookAdapter'e bağlayıp listeliyoruz!
+                    val searchAdapter = NewBookAdapter(matchingBooks) { secilenKitap ->
+                        // Bir kitaba tıklanırsa önce arama geçmişine ekleyelim:
+                        if (!historyList.contains(secilenKitap)) {
+                            historyList.add(0, secilenKitap) // En başa ekle
+                            rvSearchHistory.adapter = NewBookAdapter(historyList) { gecmisKitap ->
+                                openBookDetails(gecmisKitap)
+                            }
+                        }
+                        // Sonra detay sayfasına pasla
+                        openBookDetails(secilenKitap)
+                    }
+                    rvSearchResults.adapter = searchAdapter
+                }
+            }
+
+            override fun onFailure(call: Call<AllBooksResponse>, t: Throwable) {
+                // Canlı arama esnasında ağ hatalarını loglayabiliriz
+            }
+        })
+    }
+
+    private fun openBookDetails(book: DBBook) {
+        val intent = Intent(this, BookDetailsActivity::class.java).apply {
+            putExtra("STATUS_LOG", true) // Takip için log
+            putExtra("STORY_ID", book.storyId)
         }
-        rvSearchHistory.adapter = historyAdapter
-
-        val tvClearHistory = findViewById<TextView>(R.id.tv_clear_history)
-        val llHistory = findViewById<LinearLayout>(R.id.ll_search_history)
-
-        tvClearHistory.setOnClickListener {
-            historyAdapter.updateData(emptyList())
-            llHistory.visibility = View.GONE
-            Toast.makeText(this, "Arama geçmişi temizlendi", Toast.LENGTH_SHORT).show()
-        }
-
-        val rvSearchResults = findViewById<RecyclerView>(R.id.rv_search_results)
-        rvSearchResults.adapter = BookAdapter(emptyList())
+        startActivity(intent)
     }
 
     private fun setupAIBubble() {
         val cvAiBubble = findViewById<MaterialCardView>(R.id.cv_ai_bubble)
-
         cvAiBubble.setOnClickListener {
-            val bottomSheetDialog = BottomSheetDialog(this)
-            val bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_ai_chat, null)
-            bottomSheetDialog.setContentView(bottomSheetView)
-
-            val rvChat = bottomSheetView.findViewById<RecyclerView>(R.id.rv_ai_chat)
-            val etInput = bottomSheetView.findViewById<EditText>(R.id.et_ai_message_input)
-            val btnSend = bottomSheetView.findViewById<ImageView>(R.id.iv_ai_send_btn)
-
-            val chatHistory = mutableListOf(
-                ChatMessage(
-                    "Merhaba! Papirus veritabanındaki binlerce kitap arasından sana en uygun olanı bulabilirim. Ne tür şeyler okumaktan hoşlanırsın?",
-                    false
-                )
-            )
-            val chatAdapter = ChatAdapter(chatHistory)
-            rvChat.adapter = chatAdapter
-
-            btnSend.setOnClickListener {
-                val userText = etInput.text.toString().trim()
-                if (userText.isNotEmpty()) {
-                    chatAdapter.addMessage(ChatMessage(userText, true))
-                    etInput.text.clear()
-                    rvChat.scrollToPosition(chatAdapter.itemCount - 1)
-
-                    rvChat.postDelayed({
-                        val aiResponse = "Senin için 'Stories' veritabanını tarıyorum... " +
-                                "'$userText' konusuna benzeyen harika bir fantastik kitap buldum: 'Yıldızların Altında'. Okumak ister misin?"
-                        chatAdapter.addMessage(ChatMessage(aiResponse, false))
-                        rvChat.scrollToPosition(chatAdapter.itemCount - 1)
-                    }, 1000)
-                }
-            }
-            bottomSheetDialog.show()
+            Toast.makeText(this, "AI Öneri asistanı aktif!", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun setupBottomNavigation() {
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation_search)
-
         bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    startActivity(intent)
-                    @Suppress("DEPRECATION")
-                    overridePendingTransition(0, 0)
+                    startActivity(Intent(this, MainActivity::class.java))
                     finish()
                     true
                 }
                 R.id.nav_search -> true
-                R.id.nav_feed -> true
-                R.id.nav_library -> { // 4. Simge: Kütüphaneye Geçiş
-                    val intent = Intent(this, LibraryActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    startActivity(intent)
-                    @Suppress("DEPRECATION")
-                    overridePendingTransition(0, 0)
+                R.id.nav_library -> {
+                    startActivity(Intent(this, LibraryActivity::class.java))
                     finish()
                     true
                 }
                 R.id.nav_profile -> {
-                    val intent = Intent(this, ProfileActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    startActivity(intent)
-                    @Suppress("DEPRECATION")
-                    overridePendingTransition(0, 0)
+                    startActivity(Intent(this, ProfileActivity::class.java))
                     finish()
                     true
                 }

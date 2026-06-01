@@ -1,8 +1,9 @@
 package com.example.papirus
+import com.google.gson.annotations.SerializedName
 
 data class UserLibrary(
-    val libraryId: String,
-    val libraryName: String,
-    val bookCount: Int,
-    var isPublic: Boolean
+    @SerializedName("LibraryId") val libraryId: String,
+    @SerializedName("LibraryName") val libraryName: String,
+    @SerializedName("BookCount") val bookCount: Int,
+    @SerializedName("IsPublic") var isPublic: Boolean
 )

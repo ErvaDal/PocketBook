@@ -4,7 +4,9 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -12,7 +14,13 @@ import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.papirus.data.AllBooksResponse
+import com.example.papirus.data.ApiResponse
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,10 +40,28 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerViews()
         setupBottomNavigation()
 
-        // MainActivity.kt -> onCreate içine
+        // Bildirim sayfası yönlendirmesi
         findViewById<ImageView>(R.id.iv_notifications).setOnClickListener {
             startActivity(Intent(this, NotificationActivity::class.java))
         }
+
+        // BACKEND DATABASE BAĞLANTI TESTİ
+        RetrofitClient.api.testDb().enqueue(object : Callback<ApiResponse> {
+            override fun onResponse(
+                call: Call<ApiResponse>,
+                response: Response<ApiResponse>
+            ) {
+                if (response.isSuccessful) {
+                    Log.d("API", "SUCCESS: ${response.body()}")
+                } else {
+                    Log.e("API", "SERVER ERROR")
+                }
+            }
+
+            override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
+                Log.e("API", "FAIL: ${t.message}")
+            }
+        })
     }
 
     override fun onResume() {
@@ -71,41 +97,64 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerViews() {
-        val dummyBooks = listOf(
-            Book("1", "Osmanlı'da Harem", R.drawable.beyaz_logo),
-            Book("2", "Yapay Zeka 101", R.drawable.beyaz_logo),
-            Book("3", "C# ile Serüven", R.drawable.beyaz_logo)
-        )
+        val rvMostRead = findViewById<RecyclerView>(R.id.rv_most_read)
+        val rvContinueReading = findViewById<RecyclerView>(R.id.rv_continue_reading)
+        val rvRecommended = findViewById<RecyclerView>(R.id.rv_recommended)
 
-        val dummyCurrentBooks = listOf(
-            CurrentBook("4", "Kotlin Notları", R.drawable.beyaz_logo, 45),
-            CurrentBook("5", "Siber Güvenlik", R.drawable.beyaz_logo, 80)
-        )
+        // 🚀 1. ADIM: LayoutManager tanımlamalarını kesinlikle ana thread üzerinde netleştiriyoruz:
+        rvMostRead.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        rvContinueReading.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        rvRecommended.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
-        // 1. En Çok Okunanlar -> Detay Sayfasına Yönlendirme
-        findViewById<RecyclerView>(R.id.rv_most_read).adapter =
-            BookAdapter(dummyBooks) { secilenKitap ->
-                val intent = Intent(this, BookDetailsActivity::class.java)
-                startActivity(intent)
+        // Sunucudan kitapları talep ediyoruz
+        RetrofitClient.api.getAllStories().enqueue(object : Callback<AllBooksResponse> {
+            override fun onResponse(call: Call<AllBooksResponse>, response: Response<AllBooksResponse>) {
+                if (response.isSuccessful && response.body()?.success == true) {
+                    val dbBooks = response.body()!!.books
+
+                    // Eğer veritabanından gelen liste boşsa ekranda uyarı verelim (Test etmek için çok önemli)
+                    if (dbBooks.isEmpty()) {
+                        Toast.makeText(this@MainActivity, "⚠️ Bağlantı başarılı ama veritabanında 'PUBLISHED' durumunda hiç kitap yok!", Toast.LENGTH_LONG).show()
+                        return
+                    }
+
+                    // 🚀 2. ADIM: Adaptörleri tek tek oluşturuyoruz
+                    val mostReadAdapter = NewBookAdapter(dbBooks) { secilenKitap ->
+                        val intent = Intent(this@MainActivity, BookDetailsActivity::class.java).apply {
+                            putExtra("STORY_ID", secilenKitap.storyId)
+                        }
+                        startActivity(intent)
+                    }
+
+                    val recommendedAdapter = NewBookAdapter(dbBooks.reversed()) { secilenKitap ->
+                        val intent = Intent(this@MainActivity, BookDetailsActivity::class.java).apply {
+                            putExtra("STORY_ID", secilenKitap.storyId)
+                        }
+                        startActivity(intent)
+                    }
+
+                    // 🚀 3. ADIM: 3 listeye de verileri zorla giydiriyoruz:
+                    rvMostRead.adapter = mostReadAdapter
+                    rvContinueReading.adapter = mostReadAdapter // Boş kalmasın diye mevcut kitapları buraya da bağlıyoruz
+                    rvRecommended.adapter = recommendedAdapter
+
+                    // 🔥 4. ADIM: SİHİRLİ DOKUNUŞ - Android'e listeyi ekrana çizmesi için emir veriyoruz:
+                    mostReadAdapter.notifyDataSetChanged()
+                    recommendedAdapter.notifyDataSetChanged()
+
+                    Toast.makeText(this@MainActivity, "📚 ${dbBooks.size} adet kitap başarıyla listelendi!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainActivity, "Sunucudan olumsuz yanıt geldi.", Toast.LENGTH_SHORT).show()
+                }
             }
 
-        // 2. Okumaya Devam Et -> Detay Sayfasına Yönlendirme
-        findViewById<RecyclerView>(R.id.rv_continue_reading).adapter =
-            CurrentBookAdapter(dummyCurrentBooks) { secilenKitap ->
-                val intent = Intent(this, BookDetailsActivity::class.java)
-                startActivity(intent)
+            override fun onFailure(call: Call<AllBooksResponse>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "Ağ Hatası: Sunucuya erişilemedi! ${t.message}", Toast.LENGTH_LONG).show()
             }
-
-        // 3. Sana Özel Öneriler -> Detay Sayfasına Yönlendirme
-        findViewById<RecyclerView>(R.id.rv_recommended).adapter =
-            BookAdapter(dummyBooks.reversed()) { secilenKitap ->
-                val intent = Intent(this, BookDetailsActivity::class.java)
-                startActivity(intent)
-            }
+        })
     }
 
-
-    //navbar kısımı
+    // navbar kısmı
     private fun setupBottomNavigation() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
@@ -113,10 +162,10 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.nav_home -> true
 
-                // Arama/Keşfet sayfası varsa buraya eklenebilir:
                 R.id.nav_search -> {
                     val intent = Intent(this, SearchActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     startActivity(intent)
                     @Suppress("DEPRECATION")
                     overridePendingTransition(0, 0)
@@ -126,7 +175,8 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.nav_feed -> {
                     val intent = Intent(this, FeedActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     startActivity(intent)
                     @Suppress("DEPRECATION")
                     overridePendingTransition(0, 0)
@@ -136,7 +186,8 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.nav_library -> {
                     val intent = Intent(this, LibraryActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     startActivity(intent)
                     @Suppress("DEPRECATION")
                     overridePendingTransition(0, 0)
@@ -145,8 +196,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_profile -> {
+                    // profil ekranımız olan ProfileActivity'yi açılımı!
                     val intent = Intent(this, ProfileActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     startActivity(intent)
                     @Suppress("DEPRECATION")
                     overridePendingTransition(0, 0)

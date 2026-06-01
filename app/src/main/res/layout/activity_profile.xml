@@ -18,6 +18,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/tv_profile_top_username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="\@benim_hesabim"
@@ -109,6 +110,7 @@
                 </FrameLayout>
 
                 <TextView
+                    android:id="@+id/tv_profile_real_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
